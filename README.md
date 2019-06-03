@@ -160,17 +160,41 @@ Para continuar com o tutorial é importante que você instalar o MongoDB em seu 
 
 Alguns tutoriais podem ajudar:
 
-[completar]
+https://medium.com/@NetoVieiraLeo/instalando-e-configurando-o-mongodb-no-windows-b1d4e1e58911
+https://www.digitalocean.com/community/tutorials/como-instalar-o-mongodb-no-ubuntu-16-04-pt
 
 Além disso, também é bem bacana tentar utilizá-lo com Docker.
 
 Mais alguns links interessantes:
 
-[completar]
+https://medium.com/dockerbr/mongodb-no-docker-dd3b72c7efb7
 
 Ou ainda utilizar algum serviço online que possibilite a criação remota de uma banco de dados MongoDB
 
-[completar]
+https://www.mongodb.com/cloud/atlas
+https://mlab.com/
+https://codeforgeek.com/mongodb-atlas-node-js/
+https://medium.com/baixada-nerd/criando-um-crud-completo-com-nodejs-express-e-mongodb-parte-3-3-b243d14a403c
+
+## Dica
+
+Uma dica importante para utilizar o MongoDB é que possivelmente você vai entender que ele precisa de um comando para ser inicializado.
+
+Neste comando nós vamos fazer com que se "suba" um serviço que arazenará todos os dados do banco em uma determinada pasta.
+
+Para isso, com o seu ambinete instalado, basta executar o seguinte comando
+
+```bash
+mongod –dbpath=/home/user
+```
+
+Neste caso, o servidor ficará "montado" na pasta `/home/user`
+
+Uma ferramenta bem interessante para "visualizar" os dados do banco MongoDB é o Compass.
+
+Com uma instância do MongoDB iniciada, basta abrir o programa e vizualisar as tabelas criadas.
+
+https://docs.mongodb.com/compass/master/install/
 
 A partir da próxima sessão, vamos assumir que de alguma forma, você possui o acesso à um banco em MongoDB.
 
