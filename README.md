@@ -304,3 +304,273 @@ Apenas para efeito de testes, sempre que houver uma requisição em "/" criaremo
 Nenhuma modificação será mostrada em tela, mas ao acessar os registros do banco de dados, podemos ver que um novo produto foi criado, para cada requisição realizada.
 
 # Reestruturação dos Arquivos e Fazendo CRUDS
+
+Até este momento criamos todo o nosso servidor web em um único arquivo.
+
+E isso, nem de longe é recomendado. Inicialmente até faz sentido para entendermos mais facilmente o funcionamento dos comandos.
+
+Mas agora vamos precisar estruturar um pouco melhor o nosso projeto.
+
+Para isso, vamos organizar as rotas da aplicação, e também toda a parte de CRUD dos nossos produtos, utilizando uma nova camada de Controllers.
+
+Então vamos criar um novo arquivo em _/src/routes.js_ que será o arquivo responsável por definir as nossas rotas.
+
+```js
+const express = require("express");
+const routes = express.Router();
+
+routes.get("/", (req, res) => {
+  return res.send("Hello World");
+});
+
+module.exports = routes;
+```
+
+Note que utlizamos um novo objeto `routes` que é obtido a partir de `express.Router` utilizado para organizar as rotas da nossa aplicação.
+
+Agora temos aqui a mesma estrutura que já estávamos utilizando, neste exemplo simples a rota "/" vai apenas retornar um "Hello World".
+
+E finalmente, temos a exportação deste módulo para que ele possa ser importado em outro arquivo.
+
+Então no nosso arquivo principal app.js, podemos fazer:
+
+```js
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
+mongoose.connect("mongodb://localhost:27017/node-api", {
+  useNewUrlParser: true
+});
+
+require("./src/models/Product");
+const Product = mongoose.model("Product");
+
+app.use("/api", require("./src/routes"));
+app.listen(9999);
+```
+
+Note que estamos agora utilizando `app.use()` para gerenciar as rotas. Esse é um comando "coringa" que vai conseguir interceptar todos os tipos de requests (POST, DELETE, GET, etc...).
+
+Note que agora fazer o seguinte:
+
+`app.use("/api", require("./src/routes"));`
+
+Neste pontos estamos dizendo: todas as rotas que chegarem em nosso serivdor que começarem com `/api` devem apontar para o arquivo de rotas.
+
+Antes nós poderíamos acessar, por exemplo, http://localhost:9999/produtos mas agora, precisaremos acessar: http://localhost:9999/api/produtos.
+
+Mas se fossemos trabalhar com a nossa estrutura desta forma, ainda ficaríamos com algo muito verboso, imagine tratar toda a lógica dentro do próprio arquivo de rotas.
+
+Então o que vamos fazer é transferir essas responsabilidades para os nossos _Controllers_.
+
+Para isso, podemos criar em _/src/controllers/_ um novo Controller para Produto, chamado _ProductController.js_.
+
+```js
+const mongoose = require("mongoose");
+require("./src/models/Product");
+const Product = mongoose.model("Product");
+
+class ProductController {
+  async index(req, res) {
+    const products = await Product.find();
+    return res.json(products);
+  }
+}
+
+module.exports = new ProductController();
+```
+
+Note que criamos uma classe para gerenciar os Produtos, e nela um método async (que permite a utilização de promises).
+
+No método index, nós esperamos 2 parâmetos, os já conhecidos, req e res. Então fazemos uma consulta em todos os dados do banco através do método `find` e retornamos um json com os dados obtidos.
+
+Agora, podemos voltar em nossas rotas e fazer a seguinte alteração:
+
+```js
+const express = require("express");
+const routes = express.Router();
+const ProductController = require("./controllers/ProductController");
+
+routes.get("/products", ProductController.index);
+
+module.exports = routes;
+```
+
+# Utilizando o Insomnia
+
+Vamos utilizar um software específico que vai nos ajudar bastante a trabalhar com API.
+
+Neste caso, vamos utilizar o Insomina:
+
+https://insomnia.rest/
+
+O processo de instalação é bem simples e intuitivo.
+
+Agora podemos testar aquela nossa rota já criada, para ver se os dados são carregados com sucesso dentro do programa.
+
+Para isso, cria-se um New Request, com o nome index e do tipo get.
+
+Agora basta alterar a URL da rota, e enviar.
+
+Note que o JSON é retornado.
+
+# Criando um Registro
+
+Agora precisamos criar um novo método para criar um novo registro em nosso banco de dados.
+
+Para isso vamos alterar o ProductController para:
+
+```js
+const mongoose = require("mongoose");
+require("./src/models/Product");
+const Product = mongoose.model("Product");
+
+class ProductController {
+  async index(req, res) {
+    const products = await Product.find();
+    return res.json(products);
+  }
+  async store(req, res) {
+    const product = await Product.create(req.body);
+    return res.json(product);
+  }
+}
+
+module.exports = new ProductController();
+```
+
+E em nossas rotas, adicionamos a nova rota para criação que aponta para o método do Controller:
+
+```js
+const express = require("express");
+const routes = express.Router();
+const ProductController = require("./controllers/ProductController");
+
+routes.get("/products", ProductController.index);
+routes.post("/products", ProductController.store);
+
+module.exports = routes;
+```
+
+Note que usamos o método POST para CRIAR um novo recurso no servidor.
+
+Precisamos agora, realizar um ajuste no nosso arquivo principal app.js. Este ajuste irá permite que nós recebamos entradas JSON para os nossos endpoints, então para isso, vamos incluir `app.use(express.json())` logo após a criação do app, ficando:
+
+```js
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
+app.use(express.json());
+mongoose.connect("mongodb://localhost:27017/node-api", {
+  useNewUrlParser: true
+});
+
+app.use("/api", require("./src/routes"));
+app.listen(9999);
+```
+
+E então, podemos utilizar o Insomina para criar o teste de um novo endpoint, desta vez do tipo POST.
+
+Mas também vamos utilizá-lo para "enviar" um JSON para o recurso criado, para isso, alteramos a aba Body para JSON, e escrevemos o JSON de entrada:
+
+```json
+  "title" : "ReactJS",
+  "description": "Biblioteca para criar aplicações interativas com JS",
+  "url" : "http://github.com/facebook/react"
+```
+
+Agora podemos tentar o envio e conferir com o Compass, se o produto foi criado com sucesso!
+
+# Outras Operações do CRUD
+
+Já criamos a listagem e criação, mas ainda faltam os detalhes de um único produto, a parte de atualização e a parte de exclusão de um produto.
+
+Então vamos criar os outros métodos:
+
+```js
+const mongoose = require("mongoose");
+require("./src/models/Product");
+const Product = mongoose.model("Product");
+
+class ProductController {
+  async index(req, res) {
+    const products = await Product.find();
+    return res.json(products);
+  }
+  async store(req, res) {
+    const product = await Product.create(req.body);
+    return res.json(product);
+  }
+  async show(req, res) {
+    const produtct = await Product.findById(req.params.id);
+    return res.json(product);
+  }
+  async update(req, res) {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true
+    });
+    return res.json(product);
+  }
+  async destroy(req, res) {
+    await Product.findByIdAndRemove(req.params.id);
+    return res.send({ deleted: true });
+  }
+}
+
+module.exports = new ProductController();
+```
+
+Notemos que o método de show procura por um produto com id específico e o retorna para o response. Usamos aqui o `req.params.id` que será recuperado da próprioa URL enviada na rota (vista logo a seguir).
+
+O método update, utiliza um método bem interessante do Mongoose, que permite procurar, atualizar e o parametro `{new: true}` também retorna para uma variável o resultado atualizado.
+
+As rotas ficam:
+
+```js
+const express = require("express");
+const routes = express.Router();
+const ProductController = require("./controllers/ProductController");
+
+routes.get("/products", ProductController.index);
+routes.post("/products", ProductController.store);
+routes.get("/products/:id", ProductController.show);
+routes.put("/products/:id", ProductController.update);
+routes.delete("/products/:id", ProductController.destroy);
+
+module.exports = routes;
+```
+
+# Adicionando CORS
+
+Para fechar a API, temos que permitir que outros endereços tenham o acesso a nossa api. Até o momento, estamos permitindo apenas que o localhost faça o acesso a esta api, mas se ela for para produção, por exemplo, então precisaremos permitir que outras aplicações acessem de outros servidores.
+
+Para isso, precisamos intalar uma dependência chamada cors:
+
+```bash
+yarn add cors
+```
+
+Agora, em nosso aplicativo principal app.js, alteramos da seguinte forma:
+
+```js
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
+app.use(express.json());
+app.use(cors());
+mongoose.connect("mongodb://localhost:27017/node-api", {
+  useNewUrlParser: true
+});
+app.use("/api", require("./src/routes"));
+app.listen(9999);
+```
+
+É isso, agora nossa api já consegue responder a qualquer domínio fora do domínio em que estiver rodando.
+
+# Conclusão
+
+Espero que todos possam ter aproveitado este minicurso de Node, e que possam ter aprendido o básico de como trabalhar de forma PRÁTICA e objetiva com NodeJS e MongoDB.
+
+Qualquer dúvida, é só chamar pelo diogo@diogocezar.com
+
+Boa paz!
