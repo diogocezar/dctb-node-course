@@ -145,7 +145,7 @@ Agora vamos criar um script dentro do package.json que irá permitir a utilizaç
 Agora podemos iniciar o nosso servidor da aplicação com o comando
 
 ```bash
-yarn start dev
+yarn run dev
 ```
 
 Note que, ao alterar o arquivo, o servidor é reiniciado automaticamente.
