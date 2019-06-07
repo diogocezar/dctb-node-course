@@ -1,4 +1,4 @@
-# Curso de NodeJS
+﻿# Curso de NodeJS
 
 Material baseado no curso da RocketSeat Start sobre NodeJS.
 
@@ -228,7 +228,7 @@ Um detalhe importante é que a string de conexão pode se alterar dependendo de 
 E para testar se a conexão foi feita com sucesso, basta executar o comando para subir a aplicação, e se nenhum erro foi apontado, então, tudo estará ok!
 
 ```bash
-yarn start dev
+yarn run dev
 ```
 
 # Criando o Primeiro Model
