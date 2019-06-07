@@ -137,8 +137,9 @@ Agora vamos criar um script dentro do package.json que irá permitir a utilizaç
 
 ```json
     ...
-    "script":
+    "scripts":{
         "dev" : "nodemon src/app.js"
+     },
     ...
 ```
 
