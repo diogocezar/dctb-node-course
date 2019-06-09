@@ -1,6 +1,8 @@
 # Curso de NodeJS
 
-Material baseado no curso da RocketSeat Start sobre NodeJS.
+Material baseado no curso da RocketSeat sobre NodeJS.
+
+https://rocketseat.com.br/starter
 
 # O que é API NodeJS
 
@@ -160,21 +162,21 @@ Para continuar com o tutorial é importante que você instalar o MongoDB em seu 
 
 Alguns tutoriais podem ajudar:
 
-https://medium.com/@NetoVieiraLeo/instalando-e-configurando-o-mongodb-no-windows-b1d4e1e58911
-https://www.digitalocean.com/community/tutorials/como-instalar-o-mongodb-no-ubuntu-16-04-pt
+- https://medium.com/@NetoVieiraLeo/instalando-e-configurando-o-mongodb-no-windows-b1d4e1e58911
+- https://www.digitalocean.com/community/tutorials/como-instalar-o-mongodb-no-ubuntu-16-04-pt
 
 Além disso, também é bem bacana tentar utilizá-lo com Docker.
 
 Mais alguns links interessantes:
 
-https://medium.com/dockerbr/mongodb-no-docker-dd3b72c7efb7
+- https://medium.com/dockerbr/mongodb-no-docker-dd3b72c7efb7
 
-Ou ainda utilizar algum serviço online que possibilite a criação remota de uma banco de dados MongoDB
+Ou ainda utilizar algum serviço **online** que possibilite a criação remota de uma banco de dados MongoDB
 
-https://www.mongodb.com/cloud/atlas
-https://mlab.com/
-https://codeforgeek.com/mongodb-atlas-node-js/
-https://medium.com/baixada-nerd/criando-um-crud-completo-com-nodejs-express-e-mongodb-parte-3-3-b243d14a403c
+- https://www.mongodb.com/cloud/atlas
+- https://mlab.com/
+- https://codeforgeek.com/mongodb-atlas-node-js/
+- https://medium.com/baixada-nerd/criando-um-crud-completo-com-nodejs-express-e-mongodb-parte-3-3-b243d14a403c
 
 ## Dica
 
@@ -190,7 +192,11 @@ mongod –dbpath=/home/user
 
 Neste caso, o servidor ficará "montado" na pasta `/home/user`
 
-Uma ferramenta bem interessante para "visualizar" os dados do banco MongoDB é o Compass.
+**IMPORTANTE**: Note que essa foi uma pasta utilizada como exemplo, mas você deverá montar o banco de dados em uma pasta que escolher em seu sistema operacional. Também é importante entender que o MongoDB não tem nenhuma relação direta com o seu projeto da API, e pode ser montado em um pasta completamente diferente. E por fim, este comando deverá ficar "rodando" enquanto quiser que o banco fique "online" caso você pare este serviço, com `CTRL + C` por exemplo, é como se estivesse desligando o banco de dados.
+
+Mas e agora? O banco está online... como vou fazer para ver as nossas coleções?
+
+Uma ferramenta bem interessante para "visualizar" os dados do banco MongoDB é o **Compass**.
 
 Com uma instância do MongoDB iniciada, basta abrir o programa e vizualisar as tabelas criadas.
 
@@ -266,12 +272,12 @@ const ProductSchema = new mongoose.Schema({
   }
 });
 
-mongoose.model("Product", ProductSchema);
+module.exports = mongoose.model("Product", ProductSchema);
 ```
 
 Notemos que criamos um objeto com os tipos de cada um dos campos, neste caso: Título, Descrição e URL, e ainda um campo de controle createdAt que irá se preencher automaticamente com a data de criação do elemento.
 
-Ainda temos a utlização do `mongoose.model` que faz o "registro" deste model Product para toda a nossa aplicação.
+Ainda temos a utlização e exportação do `mongoose.model` que faz o "registro" deste model Product para toda a nossa aplicação.
 
 Agora para testar nosso model, podemos modificar temporariamente nosso arquivo principal, ficando:
 
@@ -283,8 +289,7 @@ mongoose.connect("mongodb://localhost:27017/node-api", {
   useNewUrlParser: true
 });
 
-require("./src/models/Product");
-const Product = mongoose.model("Product");
+const Product = require("./models/Product");
 
 app.get("/", (req, res) => {
   Product.create({
@@ -341,10 +346,6 @@ const app = express();
 mongoose.connect("mongodb://localhost:27017/node-api", {
   useNewUrlParser: true
 });
-
-require("./src/models/Product");
-const Product = mongoose.model("Product");
-
 app.use("/api", require("./src/routes"));
 app.listen(9999);
 ```
@@ -367,8 +368,7 @@ Para isso, podemos criar em _/src/controllers/_ um novo Controller para Produto,
 
 ```js
 const mongoose = require("mongoose");
-require("./src/models/Product");
-const Product = mongoose.model("Product");
+const Product = require("../models/Product");
 
 class ProductController {
   async index(req, res) {
@@ -398,13 +398,17 @@ module.exports = routes;
 
 # Utilizando o Insomnia
 
-Vamos utilizar um software específico que vai nos ajudar bastante a trabalhar com API.
+Vamos utilizar um software específico que vai nos ajudar bastante a trabalhar com a nossa API.
 
 Neste caso, vamos utilizar o Insomina:
 
 https://insomnia.rest/
 
 O processo de instalação é bem simples e intuitivo.
+
+Por que utilizá-lo? Testar uma api nem sempre é algo muito simples de se fazer, imagine que vc precisaria criar um "Front-End" só para realizar estes testes. Por isso, o que o Insomia faz, é justamente proporcional um ambiente para "testar" as apis, permitindo que nós enviemos diferentes tipos de requisições para api, como por exemplo: GET (para obter um dado), POST (para salvar), PUT (para atualizar) e DELETE (para excluir).
+
+Além disso, fica simples o envio de um JSON para criar ou alterar um recurso.
 
 Agora podemos testar aquela nossa rota já criada, para ver se os dados são carregados com sucesso dentro do programa.
 
@@ -422,8 +426,7 @@ Para isso vamos alterar o ProductController para:
 
 ```js
 const mongoose = require("mongoose");
-require("./src/models/Product");
-const Product = mongoose.model("Product");
+const Product = require("../models/Product");
 
 class ProductController {
   async index(req, res) {
@@ -464,7 +467,6 @@ app.use(express.json());
 mongoose.connect("mongodb://localhost:27017/node-api", {
   useNewUrlParser: true
 });
-
 app.use("/api", require("./src/routes"));
 app.listen(9999);
 ```
@@ -489,8 +491,7 @@ Então vamos criar os outros métodos:
 
 ```js
 const mongoose = require("mongoose");
-require("./src/models/Product");
-const Product = mongoose.model("Product");
+const Product = require("../models/Product");
 
 class ProductController {
   async index(req, res) {
@@ -573,4 +574,4 @@ Espero que todos possam ter aproveitado este minicurso de Node, e que possam ter
 
 Qualquer dúvida, é só chamar pelo diogo@diogocezar.com
 
-Boa paz!
+Boa paz! 🙏🙏🙏
