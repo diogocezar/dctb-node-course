@@ -570,6 +570,10 @@ app.listen(9999);
 
 # Conclusão
 
+Caso você queira ver um exemplo completo, temos isso organizado neste repositório: https://github.com/diogocezar/node-course-sample
+
+---
+
 Espero que todos possam ter aproveitado este minicurso de Node, e que possam ter aprendido o básico de como trabalhar de forma PRÁTICA e objetiva com NodeJS e MongoDB.
 
 Qualquer dúvida, é só chamar pelo diogo@diogocezar.com
