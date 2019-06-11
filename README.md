@@ -435,8 +435,8 @@ class ProductController {
     return res.json(products);
   }
   async store(req, res) {
-    const product = await Product.create(req.body);
-    return res.json(product);
+    const products = await Product.create(req.body);
+    return res.json(products);
   }
 }
 
@@ -504,7 +504,7 @@ class ProductController {
     return res.json(product);
   }
   async show(req, res) {
-    const produtct = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id);
     return res.json(product);
   }
   async update(req, res) {
